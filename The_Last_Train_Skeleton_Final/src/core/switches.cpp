@@ -58,3 +58,11 @@ bool installFuseControlPanel(char inventory[MAX_INVENTORY_CAPACITY], int &invent
     }
     return false; // no fuse in the bag
 }
+bool verifyCabinetCode(const char *enteredCode, const bool objectives[NUM_OBJECTIVES])
+{
+    // Works only after all three clues are found and the code is exactly "427"
+    return objectives[OBJ_CLUE_4] &&
+           objectives[OBJ_CLUE_2] &&
+           objectives[OBJ_CLUE_7] &&
+           stringEquals(enteredCode, "427");
+}
