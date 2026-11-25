@@ -44,4 +44,22 @@ void renderRoomDetails(int floor, int room,                 // used when the pla
                            }
                         }
                         cout<<"\n";
-                       }                     
+                       }        
+               
+void renderAsciiBuilding(int playerFloor, int playerRoom)   // shows the 5x4 grid of building when map command will be used
+{
+printHeader("Room locator(* = you)");  // asterisk shows the current location of our player
+     for(int floor=NUM_FLOORS; floor>=1; --floor){ // loop is in reverse order so that it will display from the Top to bottom From F5-F1
+         for(int room=1; room<=ROOMS_PER_FLOOR; ++room){
+                if(floor == playerFloor && playerRoom == room){
+                    cout<<"*";  // will show current location
+                }else{
+                    cout<<" "; 
+                }
+                cout<<"F"<<floor<<"-R"<<room<<"  ";
+            }
+                cout<<"\n";
+            }
+}
+
+
