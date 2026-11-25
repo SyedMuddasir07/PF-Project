@@ -1,5 +1,6 @@
 #include "switches.h"
 #include "util.h"
+#include "physics.h"
 
 // Door lock mechanics, lifts, and cabinet verification without structures
 bool canUseLift1(int fromFloor, int toFloor)
@@ -18,7 +19,7 @@ bool canUseLift2(int fromFloor, int toFloor, bool lift2Operational, int emergenc
 bool unlockFloor3Door(const char inventory[MAX_INVENTORY_CAPACITY], int inventoryCount) // inventory capacity is defined in config.h.
 {
     // The player can unlock the floor 3 door if they hold the master key.
-    for (int i = 0; i < inventoryCount; ++i)
+    for (int i = 0; i < inventoryCount; i++)
     {
         if (inventory[i] == ENT_MASTER_KEY)
         {
@@ -26,4 +27,34 @@ bool unlockFloor3Door(const char inventory[MAX_INVENTORY_CAPACITY], int inventor
         }
     }
     return false;
+}
+bool installFuseControlPanel(char inventory[MAX_INVENTORY_CAPACITY], int &inventoryCount,
+                             bool objectives[NUM_OBJECTIVES], int &score)
+{
+    // Can't install twice
+    if (objectives[OBJ_FUSE_INSTALLED])
+    {
+        return false;
+    }
+
+    for (int i = 0; i < inventoryCount; i++)
+    {
+        if (inventory[i] == ENT_FUSE)
+        {
+            // Remove the fuse  shift later items one slot left
+            for (int j = i; j < inventoryCount - 1; j++)
+            {
+                inventory[j] = inventory[j + 1];
+            }
+            --inventoryCount;
+            inventory[inventoryCount] = ENT_NONE; // clear the old last slot
+
+            // Mark the objective, power Lift 2 if the pass was found, add score
+            objectives[OBJ_FUSE_INSTALLED] = true;
+            objectives[OBJ_LIFT2_ACTIVE] = objectives[OBJ_LIFT_PASS];
+            applyScoreDelta(score, SCORE_INSTALL_FUSE);
+            return true;
+        }
+    }
+    return false; // no fuse in the bag
 }
