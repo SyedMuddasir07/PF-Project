@@ -62,4 +62,36 @@ printHeader("Room locator(* = you)");  // asterisk shows the current location of
             }
 }
 
+void renderObjectivesChecklist(const bool objectives[NUM_OBJECTIVES])     // when (goals)input: objective array function we have bool datatype true or false 
+{
+    const char* labels[NUM_OBJECTIVES]={   //a local char array mde my me to store the 16 objective and char pointing to the address of first element in array
+        "Master key",    // Index 0
+        "Clue 4",
+        "Clue 2",
+        "Clue 7",
+        "Cabinet unlocked",
+        "Train Key",
+        "Fuse Found",
+        "Fuse installed",    
+         "Lift pass",        
+        "Lift 2 active",    
+       "Passenger rescued", 
+       "Carrier found",     
+       "Cat secured",       
+         "Train prepared",   
+      "Mission won",       
+      "Mission failed"    // Index 15
+
+    };
+    for(int i=0; i<NUM_OBJECTIVES; ++i){
+      if(objectives[i] == true){
+        cout<<"[x] ";
+      }
+      else{
+        cout<<"[ ] ";
+      }
+     cout<<labels[i]<<endl;
+
+    }
+}
 
