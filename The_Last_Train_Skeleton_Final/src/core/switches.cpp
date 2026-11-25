@@ -15,3 +15,15 @@ bool canUseLift2(int fromFloor, int toFloor, bool lift2Operational, int emergenc
     return fromStop && toStop && fromFloor != toFloor &&
            (lift2Operational || emergencyTripsLeft > 0);
 }
+bool unlockFloor3Door(const char inventory[MAX_INVENTORY_CAPACITY], int inventoryCount) // inventory capacity is defined in config.h.
+{
+    // The player can unlock the floor 3 door if they hold the master key.
+    for (int i = 0; i < inventoryCount; ++i)
+    {
+        if (inventory[i] == ENT_MASTER_KEY)
+        {
+            return true;
+        }
+    }
+    return false;
+}
