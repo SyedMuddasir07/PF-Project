@@ -21,7 +21,7 @@ bool addItem(char inventory[MAX_INVENTORY_CAPACITY], int &inventoryCount, char i
     inventoryCount++;
     return true;
 }
-
+// We use `&` so the function changes the caller's real variable instead of a throwaway copy.
 bool removeItem(char inventory[MAX_INVENTORY_CAPACITY], int &inventoryCount, char itemSymbol)
 {
     for (int i = 0; i < inventoryCount; i++)
