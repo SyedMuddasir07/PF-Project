@@ -99,3 +99,19 @@ bool isDirectlyConnected(int fromF, int fromR, int toF, int toR,
     // return true only if we found a real link
     return outConnType != CONN_NONE && outConnType != CONN_SOLID_WALL;
 }
+
+bool canTraverse(int targetFloor, int targetRoom, char connType,
+                 const char inventory[MAX_INVENTORY_CAPACITY], int inventoryCount,
+                 int emergencyTripsLeft, bool lift2Operational)
+{
+    if (connType == CONN_NONE || connType == CONN_SOLID_WALL)
+        return false;
+
+    if (connType == CONN_LOCKED_DOOR)
+        return hasItem(inventory, inventoryCount, ENT_MASTER_KEY);
+
+    if (connType == '2')
+        return lift2Operational || emergencyTripsLeft > 0;
+
+    return true; // door, window, stairs, lift 1
+}
