@@ -41,52 +41,52 @@ final_answer= total_value*sign_multiplier;
 return true;
 }
 
-const char*getEntityName(char sym){ // returns full name of item from the smbol
-if(sym==ENT_MASTER_KEY){
+const char*getEntityName(char entitySymbol){ // returns full name of item from the smbol
+if(entitySymbol==ENT_MASTER_KEY){
 return "Master Key";
 }
-else if(sym==ENT_ENERGY_PACK){
+else if(entitySymbol==ENT_ENERGY_PACK){
 return "Energy Pack";    
 }
-else if(sym ==ENT_EMERGENCY_TOOLKIT){
+else if(entitySymbol ==ENT_EMERGENCY_TOOLKIT){
 return "Emergency Toolkit";    
 }
-else if(sym == ENT_CLUE_4){
+else if(entitySymbol == ENT_CLUE_4){
     return "Clue 4";
 }
-else if (sym ==ENT_FUSE) {
+else if (entitySymbol ==ENT_FUSE) {
    return "Fuse";
  }
-  else if (sym ==ENT_CAT) {
+  else if (entitySymbol ==ENT_CAT) {
  return "Cat";
  } 
- else if (sym ==ENT_CONTROL_PANEL) {
+ else if (entitySymbol ==ENT_CONTROL_PANEL) {
  return "Control panel";
  } 
- else if (sym ==ENT_LIFT_PASS) {
+ else if (entitySymbol ==ENT_LIFT_PASS) {
  return "Lift pass";
  }
- else if (sym ==ENT_PASSENGER) {
+ else if (entitySymbol ==ENT_PASSENGER) {
   return "Passenger";
 }
-else if (sym == ENT_MEDICAL_KIT) {
+else if (entitySymbol == ENT_MEDICAL_KIT) {
  return "Medical kit";
-} else if (sym == ENT_EMERGENCY_CARD) {
+} else if (entitySymbol == ENT_EMERGENCY_CARD) {
         return "Emergency card";
 }
- else if (sym == ENT_CLUE_2)
+ else if (entitySymbol == ENT_CLUE_2)
  {
         return "Clue 2";
  }
-  else if (sym == ENT_CLUE_7) {
+  else if (entitySymbol == ENT_CLUE_7) {
  return "Clue 7";
   }
-   else if (sym == ENT_CABINET_TRAIN_KEY) {
+   else if (entitySymbol == ENT_CABINET_TRAIN_KEY) {
         return "Cabinet / train key";
-    } else if (sym == ENT_CAT_CARRIER) {
+    } else if (entitySymbol == ENT_CAT_CARRIER) {
         return "Cat carrier";
     } 
-    else if (sym == ENT_OBSERVATION_TOKEN) {
+    else if (entitySymbol == ENT_OBSERVATION_TOKEN) {
         return "Observation token";
     }
      else {
@@ -112,7 +112,8 @@ bool loadBuildingMap(const char* filename,
                         int floors_count=0;
 
 
-                       while(map_file.getline(file_line,MAX_LINE_LEN)){
+                       while
+                       (map_file.getline(file_line,MAX_LINE_LEN)){
                         int line_len =(int)strlen(file_line);  //lin by line read and charcter are saved in live_len
                 
                        int r1_pos=-1;
@@ -201,12 +202,76 @@ bool loadBuildingMap(const char* filename,
                     if (floors_count == NUM_FLOORS) {
                         return true;
                     }
-                } //end of while loop her
+                } //end of while loop here
 
                 return false; 
             }
 
-            
+bool validateStartingRoom(int startFloor, int startRoom,       // function tells us  that starting point in floor and room is within the valid range
+                          const char horizontalConn[NUM_FLOORS][ROOMS_PER_FLOOR - 1])
 
+                       {
+                        (void)horizontalConn; //every printed room is a valid start . so dont give an an unsued parameter warning
+                        return startFloor>=1 && startFloor<=NUM_FLOORS && startRoom>=1 &&startRoom <=ROOMS_PER_FLOOR;
+                       }
 
+bool loadInitialState(const char* filename,            // Read the initial statee txt(KEY:VALUE) 
+                      int& playerFloor, int& playerRoom,
+                      int& energy, int& time, int& score,
+                      char inventory[MAX_INVENTORY_CAPACITY], int& inventoryCount,
+                      bool objectives[NUM_OBJECTIVES], int& emergencyTripsLeft)      //sets the startinng game values
+                      {
+                        ifstream state_file(filename);
 
+                        if(!state_file)return false;
+                        inventoryCount=0;
+                        emergencyTripsLeft=0;
+                        for(int i=0;i<MAX_INVENTORY_CAPACITY;i++)
+                        inventory[i]=ENT_NONE;
+                        for(int i=0;i<NUM_OBJECTIVES;i++)
+                        objectives[i]=false;
+                        bool got_start= false,got_energy = false, got_time = false,got_score=false;
+                        char file_line[MAX_LINE_LEN];
+
+                        while (state_file.getline(file_line, MAX_LINE_LEN)){
+                            trimWhitespace(file_line);
+                            if(file_line[0]=='\0')continue;
+
+                            char* colon_ptr =strchr(file_line,':'); //now first search : sign and then make and then jinclude'/0'so we get file_line(key)and the value.
+                            if(colon_ptr ==NULL) return false;
+                            *colon_ptr='\0';
+                        
+                           char* val_str = colon_ptr+1;
+                           trimWhitespace(file_line);
+                           trimWhitespace(val_str);
+                           int temp_num=0;
+                           if(stringEquals(file_line,"START_ROOM")){
+                              if(!stringEquals(val_str,"PLAYER_SELECTS"))return false;
+                               playerFloor = playerRoom =0;
+                               got_start= true;
+                           }
+                           else if(stringEquals(file_line,"INITIAL_ENERGY")){
+                            got_energy=String_to_int(val_str, energy) && energy >0 && energy<=MAX_ENERGY;
+                         }
+                           else if (stringEquals(file_line, "INITIAL_TIME")) {
+                       got_time = String_to_int(val_str, time) && time > 0 && time <= MAX_TIME;
+                      } else if (stringEquals(file_line, "INITIAL_SCORE")) {
+                          got_score = String_to_int(val_str, score) && score >= 0;
+                        } else if (stringEquals(file_line, "MAX_ENERGY")) {
+                       if (!String_to_int(val_str, temp_num) || temp_num != MAX_ENERGY) return false;
+                        } else if (stringEquals(file_line, "MAX_TIME")) {
+                if (!String_to_int(val_str, temp_num) || temp_num != MAX_TIME) return false;
+                      } else if (stringEquals(file_line, "GAME_STATUS")) {
+                     if (!stringEquals(val_str, "NOT_STARTED")) return false;
+                   } else if (stringEquals(file_line, "INITIAL_INVENTORY") || stringEquals(file_line, "CLUES_COLLECTED")) {
+                     if (!stringEquals(val_str, "NONE")) return false;
+                      } else if (!stringEquals(val_str, "NO")) {
+                     return false;
+                           }
+                        }// while loop ends
+                        return state_file.eof() && got_start && got_energy && got_time && got_score;
+
+                    }
+                           
+                           
+              
